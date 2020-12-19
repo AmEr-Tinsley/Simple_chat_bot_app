@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from 'axios'
 function ChatRoom() {
     const [messages, setMessages] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
-
+    useEffect(() => {
+        if (messages.length && !messages[messages.length - 1].isBot) {
+            axios.get('/' + messages[messages.length - 1].content).then(response => {
+                setMessages([...messages, { content: response.data, isBot: true }]);
+            })
+        }
+    }, [messages])
     const onEnterPress = (e) => {
 
         if (e.keyCode == 13 && e.shiftKey == false) {
+            setMessages([...messages, { content: currentMessage, isBot: false }]);
 
-            axios.get('/' + currentMessage).then(response => {
-                setMessages([...messages, { content: currentMessage, isBot: false }, { content: response.data, isBot: true }]);
-            })
             setCurrentMessage('')
             e.preventDefault();
 
